@@ -49,4 +49,14 @@ class UserController extends Controller
             return redirect('/')->with('error', 'Invalid credentials provided!');
         }
     }
+
+    public function profile(User $user)
+    {
+        $userPosts = $user->posts()->latest()->get();
+        return view('profile-posts', [
+            'username' => $user->username,
+            'posts' => $userPosts,
+            'postCount' => $userPosts->count()
+        ]);
+    }
 }
