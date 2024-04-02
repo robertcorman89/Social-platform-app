@@ -31,4 +31,13 @@ class PostController extends Controller
         $post['body'] = $markdownPostBody;
         return view('single-post', ['post' => $post]);
     }
+
+    public function delete(Post $post)
+    {
+        if (auth()->user()->cannot('delete', $post)) {
+            return 'You cannot';
+        }
+        $post->delete();
+        return redirect('/profile/' . auth()->user()->username)->with('success', 'Post deleted succesfully!');
+    }
 }
