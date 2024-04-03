@@ -34,10 +34,23 @@ class PostController extends Controller
 
     public function delete(Post $post)
     {
-        if (auth()->user()->cannot('delete', $post)) {
-            return 'You cannot';
-        }
         $post->delete();
         return redirect('/profile/' . auth()->user()->username)->with('success', 'Post deleted succesfully!');
+    }
+
+    public function showEditForm(Post $post)
+    {
+        return view('edit-post', ['post' => $post]);
+    }
+    public function updatePost(Post $post, Request $request)
+    {
+        $postFields = $request->validate([
+            'title' => 'required',
+            'body' => 'required'
+        ]);
+        $postFields['title'] = strip_tags($postFields['title']);
+        $postFields['body'] = strip_tags($postFields['body']);
+        $post->update($postFields);
+        return back()->with('success', 'Post succesfully updated!');
     }
 }
