@@ -30,3 +30,9 @@ Route::put('/post/{post}', [PostController::class, 'updatePost'])->middleware('c
 
 //Profile related routes
 Route::get('/profile/{user:username}', [UserController::class, 'profile'])->middleware('mustBeLoggedIn');
+
+//Admin related
+
+Route::get('admins-only', function () {
+    return 'Admins only here!';
+})->middleware('can:visitAdminPages');
