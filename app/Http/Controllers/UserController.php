@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Follow;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\View;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 
@@ -53,17 +54,28 @@ class UserController extends Controller
         }
     }
 
-    public function profile(User $user)
+
+    private function getSharedData(User $user)
     {
         $userFollowing = 0;
         $userPosts = $user->posts()->latest()->get();
         $userFollowing = Follow::where([['user_id', '=', auth()->user()->id], ['followeduser', '=', $user->id]])->count();
-        return view('profile-posts', [
+        View::share('sharedData', [
             'userFollowed' => $userFollowing,
             'avatar' => $user->avatar,
             'username' => $user->username,
-            'posts' => $userPosts,
-            'postCount' => $userPosts->count()
+            'postCount' => $userPosts->count(),
+            'followerCount' => $user->followers()->count(),
+            'followingCount' => $user->following()->count()
+        ]);
+    }
+
+    public function profile(User $user)
+    {
+        $this->getSharedData($user);
+        $userPosts = $user->posts()->latest()->get();
+        return view('profile-posts', [
+            'posts' => $userPosts
         ]);
     }
 
@@ -71,6 +83,19 @@ class UserController extends Controller
     {
         return view('avatar-form');
     }
+    public function profileFollowers(User $user)
+    {
+        $this->getSharedData($user);
+        $followers = $user->followers()->latest()->get();
+        return view('profile-followers', ['followers' => $followers]);
+    }
+    public function profileFollowing(User $user)
+    {
+        $this->getSharedData($user);
+        $following = $user->following()->latest()->get();
+        return view('profile-following', ['following' => $following]);
+    }
+
 
     public function storeAvatar(Request $request)
     {
